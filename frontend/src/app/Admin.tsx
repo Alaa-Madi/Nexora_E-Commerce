@@ -7,6 +7,10 @@ export default function Admin() {
   const [categories, setCategories] = React.useState<{ id: number; name: string; slug: string }[]>([]);
   const [newCategory, setNewCategory] = React.useState({ name: "", slug: "" });
   const [productForm, setProductForm] = React.useState({ title: "", price: "", category_id: "", description: "", sku: "", stock: "", slug: "", imageUrl: "" });
+  const [products, setProducts] = React.useState<any[]>([]);
+  const [productCount, setProductCount] = React.useState(0);
+  const [page, setPage] = React.useState(1);
+  const pageSize = 15;
 
   React.useEffect(() => {
     fetch("http://localhost:5000/api/categories")
@@ -14,6 +18,20 @@ export default function Admin() {
       .then(setCategories)
       .catch(() => {});
   }, []);
+
+  const loadProducts = React.useCallback(() => {
+    fetch(`http://localhost:5000/api/products?limit=${pageSize}&page=${page}`)
+      .then((r) => r.json())
+      .then((data) => {
+        const rows = Array.isArray(data) ? data : (data?.rows || []);
+        const count = Array.isArray(data) ? rows.length : (data?.count || 0);
+        setProducts(rows);
+        setProductCount(count);
+      })
+      .catch(() => {});
+  }, [page]);
+
+  React.useEffect(() => { loadProducts(); }, [loadProducts]);
   return (
     <>
           <div style={{ padding: '2rem', width: '100vw', minHeight: '100vh', background: 'linear-gradient(135deg, #0A1833 0%, #1769FA 100%)' }}>
@@ -111,6 +129,7 @@ export default function Admin() {
                     setOpen(false);
                     setProductForm({ title: '', price: '', category_id: '', description: '', sku: '', stock: '', slug: '', imageUrl: '' });
                     alert('Product added');
+                    loadProducts();
                   } else {
                     const text = await res.text();
                     try {
@@ -222,32 +241,39 @@ export default function Admin() {
         {/* Product Management Section */}
         <div style={{ background: '#102040', color: '#F9FAFB', borderRadius: '1.5rem', padding: '2rem', boxShadow: '0 2px 12px #1769FA44', marginBottom: '2rem' }}>
           <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1.2rem' }}>Manage Products</h2>
-          <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
-            {/* Product List Table */}
-            <div style={{ flex: 2, minWidth: '320px' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '1rem' }}>
-                <thead>
-                  <tr style={{ background: '#1769FA', color: '#fff' }}>
-                    <th style={{ padding: '0.7rem', borderRadius: '0.5rem 0 0 0.5rem' }}>Name</th>
-                    <th style={{ padding: '0.7rem' }}>Price</th>
-                    <th style={{ padding: '0.7rem' }}>Category</th>
-                    <th style={{ padding: '0.7rem' }}>Actions</th>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '1rem' }}>
+              <thead>
+                <tr style={{ background: '#1769FA', color: '#fff' }}>
+                  <th style={{ padding: '0.7rem', borderRadius: '0.5rem 0 0 0.5rem', textAlign:'left' }}>Title</th>
+                  <th style={{ padding: '0.7rem', textAlign:'left' }}>Price</th>
+                  <th style={{ padding: '0.7rem', textAlign:'left' }}>Stock</th>
+                  <th style={{ padding: '0.7rem', textAlign:'left' }}>Category</th>
+                  <th style={{ padding: '0.7rem', textAlign:'left' }}>Created</th>
+                </tr>
+              </thead>
+              <tbody>
+                {products.map((p)=> (
+                  <tr key={p.id} style={{ background: '#23272F', color: '#F9FAFB' }}>
+                    <td style={{ padding: '0.7rem' }}>{p.title}</td>
+                    <td style={{ padding: '0.7rem' }}>${p.price}</td>
+                    <td style={{ padding: '0.7rem' }}>{p.stock}</td>
+                    <td style={{ padding: '0.7rem' }}>{p.Category?.name || '-'}</td>
+                    <td style={{ padding: '0.7rem' }}>{new Date(p.created_at).toLocaleDateString()}</td>
                   </tr>
-                </thead>
-                <tbody>
-                  {/* Example product row */}
-                  <tr style={{ background: '#23272F', color: '#F9FAFB' }}>
-                    <td style={{ padding: '0.7rem' }}>Pro Design Template</td>
-                    <td style={{ padding: '0.7rem' }}>$19</td>
-                    <td style={{ padding: '0.7rem' }}>Templates</td>
-                    <td style={{ padding: '0.7rem' }}>
-                      <button style={{ background: '#2563EB', color: '#fff', border: 'none', borderRadius: '0.7rem', padding: '0.4rem 1rem', marginRight: '0.5rem', cursor: 'pointer' }}>Edit</button>
-                      <button style={{ background: '#7C3AED', color: '#fff', border: 'none', borderRadius: '0.7rem', padding: '0.4rem 1rem', cursor: 'pointer' }}>Delete</button>
-                    </td>
-                  </tr>
-                  {/* Add more product rows here */}
-                </tbody>
-              </table>
+                ))}
+                {products.length === 0 && (
+                  <tr><td colSpan={5} style={{ padding:'0.8rem', color:'#A3AAB8' }}>No products found.</td></tr>
+                )}
+              </tbody>
+            </table>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginTop:'1rem' }}>
+              <div style={{ color:'#A3AAB8' }}>Total: {productCount}</div>
+              <div style={{ display:'flex', gap:'0.5rem' }}>
+                <button disabled={page<=1} onClick={()=>setPage((p)=>Math.max(1,p-1))} style={{ background:'#23272F', color:'#fff', border:'none', borderRadius:'0.7rem', padding:'0.4rem 0.9rem', cursor:'pointer', opacity: page<=1?0.5:1 }}>Prev</button>
+                <span style={{ alignSelf:'center' }}>Page {page} / {Math.max(1, Math.ceil(productCount / pageSize))}</span>
+                <button disabled={page>=Math.ceil(productCount/pageSize)} onClick={()=>setPage((p)=>p+1)} style={{ background:'#23272F', color:'#fff', border:'none', borderRadius:'0.7rem', padding:'0.4rem 0.9rem', cursor:'pointer', opacity: page>=Math.ceil(productCount/pageSize)?0.5:1 }}>Next</button>
+              </div>
             </div>
           </div>
         </div>

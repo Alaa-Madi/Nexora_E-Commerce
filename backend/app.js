@@ -5,6 +5,7 @@ const sequelize = require('./config/db');
 require('./models');
 const authRoutes = require('./routes/auth');
 const catalogRoutes = require('./routes/catalog');
+const checkoutRoutes = require('./routes/checkout');
 
 const app = express();
 app.use(cors());
@@ -12,6 +13,7 @@ app.use(express.json());
 
 app.use('/api/auth', authRoutes);
 app.use('/api', catalogRoutes);
+app.use('/api/checkout', checkoutRoutes);
 
 const PORT = process.env.PORT || 5000;
 
