@@ -30,9 +30,23 @@ const createProduct = async (req, res) => {
   }
 };
 
-const listProducts = async (_req, res) => {
-  const products = await Product.findAll({ include: [{ model: ProductImage, as: 'images' }, Category] });
-  res.json(products);
+const listProducts = async (req, res) => {
+  const limit = Math.max(parseInt(req.query.limit, 10) || 0, 0);
+  const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+  const offset = limit > 0 ? (page - 1) * limit : undefined;
+
+  if (limit > 0) {
+    const result = await Product.findAndCountAll({
+      include: [{ model: ProductImage, as: 'images' }, Category],
+      order: [["created_at", "DESC"]],
+      limit,
+      offset,
+    });
+    return res.json({ rows: result.rows, count: result.count, page, pageSize: limit });
+  }
+
+  const products = await Product.findAll({ include: [{ model: ProductImage, as: 'images' }, Category], order: [["created_at", "DESC"]] });
+  res.json({ rows: products, count: products.length, page: 1, pageSize: products.length });
 };
 
 module.exports = { createCategory, listCategories, createProduct, listProducts };

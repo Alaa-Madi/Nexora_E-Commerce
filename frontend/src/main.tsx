@@ -12,6 +12,9 @@ import Register from "./app/Register";
 import Orders from "./app/Orders";
 import Admin from "./app/Admin";
 import ProductDetails from "./app/ProductDetailes";
+import Favorites from "./app/Favorites";
+import CheckoutSuccess from "./app/CheckoutSuccess";
+import CheckoutCancel from "./app/CheckoutCancel";
 
 function App() {
   return (
@@ -22,7 +25,10 @@ function App() {
           <Route path="/products" element={<Products />} />
           <Route path="/products/:id" element={<ProductDetails />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/favorites" element={<Favorites />} />
           <Route path="/checkout" element={<Checkout />} />
+          <Route path="/checkout/success" element={<CheckoutSuccess />} />
+          <Route path="/checkout/cancel" element={<CheckoutCancel />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/orders" element={<Orders />} />
