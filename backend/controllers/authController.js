@@ -9,7 +9,18 @@ const register = async (req, res) => {
     const { name, email, password, role } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await User.create({ name, email, password: hashedPassword, role });
-    res.status(201).json({ message: 'User registered', user });
+    const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1d' });
+    res.status(201).json({ 
+      message: 'User registered', 
+      token,
+      role: user.role,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+      }
+    });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -23,7 +34,17 @@ const login = async (req, res) => {
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.status(401).json({ error: 'Invalid credentials' });
     const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1d' });
-    res.json({ message: 'Login successful', token, role: user.role });
+    res.json({ 
+      message: 'Login successful', 
+      token, 
+      role: user.role,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+      }
+    });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -69,4 +90,27 @@ const resetPassword = async (req, res) => {
   }
 };
 
-module.exports = { register, login, forgetPassword, resetPassword };
+const validate = async (req, res) => {
+  try {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (!token) return res.status(401).json({ error: 'No token provided' });
+    
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findByPk(decoded.id);
+    if (!user) return res.status(401).json({ error: 'User not found' });
+    
+    res.json({ 
+      valid: true,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+      }
+    });
+  } catch (err) {
+    res.status(401).json({ error: 'Invalid token' });
+  }
+};
+
+module.exports = { register, login, forgetPassword, resetPassword, validate };

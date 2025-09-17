@@ -1,15 +1,18 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import Header from "../components/navbar/Header";
 import Footer from "../components/Footer";
 import useCart from "../store/useCart";
 import useFavorites from "../store/useFavorites";
+import useAuth from "../store/useAuth";
 
 export default function ProductDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { addItem } = useCart();
+  const location = useLocation();
+  const { addItemWithAuth } = useCart();
   const { toggle, isFavorite } = useFavorites();
+  const { isAuthenticated } = useAuth();
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
@@ -30,13 +33,26 @@ export default function ProductDetails() {
 
   const handleAddToCart = () => {
     if (product) {
-      for (let i = 0; i < quantity; i++) {
-        addItem({
+      const success = addItemWithAuth({
+        id: product.id,
+        title: product.title,
+        price: product.price,
+        image: product.images?.[0]?.url || "http://localhost:5173/vite.svg",
+      }, isAuthenticated);
+      
+      if (!success) {
+        navigate('/unauthenticated', { state: { from: location.pathname } });
+        return;
+      }
+      
+      // If successful, add the remaining quantity
+      for (let i = 1; i < quantity; i++) {
+        addItemWithAuth({
           id: product.id,
           title: product.title,
           price: product.price,
           image: product.images?.[0]?.url || "http://localhost:5173/vite.svg",
-        });
+        }, isAuthenticated);
       }
     }
   };

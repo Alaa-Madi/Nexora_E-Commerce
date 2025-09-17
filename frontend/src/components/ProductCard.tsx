@@ -1,8 +1,9 @@
 
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import useFavorites from "../store/useFavorites";
 import useCart from "../store/useCart";
+import useAuth from "../store/useAuth";
 
 interface ProductCardProps {
   id: number;
@@ -15,17 +16,23 @@ interface ProductCardProps {
 export default function ProductCard({ id, title, price, image, description }: ProductCardProps) {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
-  const { addItem } = useCart();
+  const location = useLocation();
+  const { addItemWithAuth } = useCart();
   const { toggle, isFavorite } = useFavorites();
+  const { isAuthenticated } = useAuth();
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
-    addItem({
+    const success = addItemWithAuth({
       id,
       title,
       price,
       image,
-    });
+    }, isAuthenticated);
+    
+    if (!success) {
+      navigate('/unauthenticated', { state: { from: location.pathname } });
+    }
   };
 
   const handleViewDetails = () => {

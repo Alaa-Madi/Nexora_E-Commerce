@@ -10,28 +10,36 @@ import { motion } from "framer-motion";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
-  const { login } = useAuth();
+  const { login, isLoading, error, clearError } = useAuth();
 
   useEffect(() => {
-    const state = location.state as { email?: string; password?: string } | null;
+    const state = location.state as { email?: string; password?: string; from?: string } | null;
     if (state?.email) setEmail(state.email);
     if (state?.password) setPassword(state.password);
   }, [location.state]);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
+    clearError();
     try {
-      await login({ email, password });
-      setSuccess("Login successful!");
-      navigate("/");
-      // Optionally save token: localStorage.setItem("token", data.token);
+      const result = await login({ email, password });
+      
+      // Get redirect destination from location state
+      const state = location.state as { from?: string } | null;
+      const redirectTo = state?.from;
+      
+      // Redirect based on role and previous location
+      if (result.role === 'admin') {
+        navigate("/admin");
+      } else if (redirectTo && redirectTo !== '/login') {
+        navigate(redirectTo);
+      } else {
+        navigate("/");
+      }
     } catch (err: any) {
-      setError(err.message);
+      // Error is handled by the auth store
+      console.error('Login error:', err);
     }
   };
   return (
@@ -178,7 +186,7 @@ export default function Login() {
             Login
           </motion.button>
           {error && <motion.div className="text-red-500 text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>{error}</motion.div>}
-          {success && <motion.div className="text-green-500 text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>{success}</motion.div>}
+          {isLoading && <motion.div className="text-blue-500 text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>Logging in...</motion.div>}
         </form>
               <div style={{ marginTop: "2rem", textAlign: "center" }}>
                 <a 

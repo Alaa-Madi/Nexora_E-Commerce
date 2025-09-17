@@ -49,6 +49,57 @@ const listProducts = async (req, res) => {
   res.json({ rows: products, count: products.length, page: 1, pageSize: products.length });
 };
 
-module.exports = { createCategory, listCategories, createProduct, listProducts };
+const updateProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, slug, description, price, sku, stock, category_id, images } = req.body;
+    
+    const product = await Product.findByPk(id);
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    await product.update({ title, slug, description, price, sku, stock, category_id });
+    
+    // Update images if provided
+    if (Array.isArray(images)) {
+      // Delete existing images
+      await ProductImage.destroy({ where: { product_id: id } });
+      // Add new images
+      if (images.length > 0) {
+        const records = images.map((url) => ({ product_id: id, url }));
+        await ProductImage.bulkCreate(records);
+      }
+    }
+
+    const withRelations = await Product.findByPk(id, { include: [{ model: ProductImage, as: 'images' }, Category] });
+    res.json(withRelations);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+const deleteProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const product = await Product.findByPk(id);
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    // Delete associated images first
+    await ProductImage.destroy({ where: { product_id: id } });
+    
+    // Delete the product
+    await product.destroy();
+    
+    res.json({ message: 'Product deleted successfully' });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+module.exports = { createCategory, listCategories, createProduct, listProducts, updateProduct, deleteProduct };
 
 

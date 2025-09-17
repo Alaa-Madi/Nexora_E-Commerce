@@ -5,30 +5,29 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import Header from "../components/navbar/Header";
 import Footer from "../components/Footer";
+import useAuth from "../store/useAuth";
 
 export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const navigate = useNavigate();
+  const { register, isLoading, error, clearError } = useAuth();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
+    clearError();
     try {
-      const res = await fetch("http://localhost:5000/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Registration failed");
-      setSuccess("Registration successful!");
-      navigate("/login", { state: { email, password } });
+      const result = await register({ name, email, password });
+      
+      // Redirect based on role from the returned data
+      if (result.role === 'admin') {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
     } catch (err: any) {
-      setError(err.message);
+      // Error is handled by the auth store
+      console.error('Register error:', err);
     }
   };
 
@@ -188,7 +187,7 @@ export default function Register() {
             Register
           </motion.button>
           {error && <motion.div className="text-red-500 text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>{error}</motion.div>}
-          {success && <motion.div className="text-green-500 text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>{success}</motion.div>}
+          {isLoading && <motion.div className="text-blue-500 text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>Creating account...</motion.div>}
         </form>
               <div style={{ marginTop: "2rem", textAlign: "center" }}>
                 <a 
