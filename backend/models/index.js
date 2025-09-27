@@ -5,8 +5,8 @@ const Order = require('./order');
 const OrderItem = require('./orderItem');
 
 // Associations
-Category.hasMany(Product, { foreignKey: 'category_id' });
-Product.belongsTo(Category, { foreignKey: 'category_id' });
+Category.hasMany(Product, { foreignKey: 'category_id', as: 'Products' });
+Product.belongsTo(Category, { foreignKey: 'category_id', as: 'Category' });
 
 Product.hasMany(ProductImage, { foreignKey: 'product_id', as: 'images' });
 ProductImage.belongsTo(Product, { foreignKey: 'product_id' });

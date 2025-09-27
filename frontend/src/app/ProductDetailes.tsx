@@ -16,6 +16,7 @@ export default function ProductDetails() {
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   useEffect(() => {
     if (id) {
@@ -193,18 +194,51 @@ export default function ProductDetails() {
             padding: '2rem',
             boxShadow: '0 2px 24px #1769FA44'
           }}>
-            {/* Product Image */}
+            {/* Product Images Gallery */}
             <div>
-              <img 
-                src={product.images?.[0]?.url || "http://localhost:5173/vite.svg"} 
-                alt={product.title}
-                style={{ 
-                  width: '100%', 
-                  height: '400px', 
-                  borderRadius: '1rem',
-                  objectFit: 'cover'
-                }}
-              />
+              {/* Main Image */}
+              <div style={{ marginBottom: '1rem' }}>
+                <img 
+                  src={product.images?.[selectedImageIndex]?.url || "http://localhost:5173/vite.svg"} 
+                  alt={product.title}
+                  style={{ 
+                    width: '100%', 
+                    height: '400px', 
+                    borderRadius: '1rem',
+                    objectFit: 'cover',
+                    cursor: 'pointer'
+                  }}
+                />
+              </div>
+
+              {/* Image Thumbnails */}
+              {product.images && product.images.length > 1 && (
+                <div style={{ 
+                  display: 'flex', 
+                  gap: '0.5rem', 
+                  overflowX: 'auto',
+                  paddingBottom: '0.5rem'
+                }}>
+                  {product.images.map((image: any, index: number) => (
+                    <img
+                      key={index}
+                      src={image.url}
+                      alt={`${product.title} ${index + 1}`}
+                      onClick={() => setSelectedImageIndex(index)}
+                      style={{
+                        width: '80px',
+                        height: '80px',
+                        borderRadius: '0.5rem',
+                        objectFit: 'cover',
+                        cursor: 'pointer',
+                        border: selectedImageIndex === index ? '3px solid #1769FA' : '3px solid transparent',
+                        opacity: selectedImageIndex === index ? 1 : 0.7,
+                        transition: 'all 0.2s ease'
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Product Info */}
