@@ -34,7 +34,7 @@ export default function Register() {
   return (
     <>
       <main className="w-full mx-auto px-4 py-8">
-        <Header />
+        {/* <Header /> */}
         
         {/* Hero Section */}
         <section
@@ -205,7 +205,7 @@ export default function Register() {
           </div>
         </section>
 
-        <Footer />
+        {/* <Footer /> */}
       </main>
     </>
   );

@@ -6,6 +6,7 @@ require('./models');
 const authRoutes = require('./routes/auth');
 const catalogRoutes = require('./routes/catalog');
 const checkoutRoutes = require('./routes/checkout');
+const adminRoutes = require('./routes/admin');
 
 const app = express();
 app.use(cors());
@@ -14,6 +15,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api', catalogRoutes);
 app.use('/api/checkout', checkoutRoutes);
+app.use('/api/admin', adminRoutes);
 
 const PORT = process.env.PORT || 5000;
 
