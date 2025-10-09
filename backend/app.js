@@ -19,8 +19,20 @@ app.use('/api/admin', adminRoutes);
 
 const PORT = process.env.PORT || 5000;
 
+// Add a test endpoint
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'Server is working!' });
+});
+
+// Try to sync database, but start server even if it fails
 sequelize.sync().then(() => {
+  console.log('Database connected successfully');
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
+  });
+}).catch((error) => {
+  console.log('Database connection failed, starting server with limited functionality:', error.message);
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT} (database not connected)`);
   });
 });

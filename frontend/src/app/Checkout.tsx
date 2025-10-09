@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import Header from "../components/navbar/Header";
 import Footer from "../components/Footer";
 import useCart from "../store/useCart";
+import useAuth from "../store/useAuth";
 import { useNavigate } from "react-router-dom";
 
 export default function Checkout() {
   const { items, getTotalPrice, getTotalItems, clearCart } = useCart();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     firstName: "",
@@ -34,6 +36,7 @@ export default function Checkout() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           items: items.map((i) => ({ id: i.id, title: i.title, price: i.price, image: i.image, quantity: i.quantity })),
+          userId: user?.id,
           customer: formData,
         }),
       });

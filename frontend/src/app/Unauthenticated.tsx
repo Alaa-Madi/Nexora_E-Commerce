@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import Header from '../components/navbar/Header';
 import Footer from '../components/Footer';
 
 export default function Unauthenticated() {
@@ -8,7 +7,6 @@ export default function Unauthenticated() {
   
   return (
     <>
-      <Header />
       <main style={{ 
         padding: '4rem 2rem', 
         textAlign: 'center', 
@@ -105,7 +103,6 @@ export default function Unauthenticated() {
           </div>
         </div>
       </main>
-      <Footer />
     </>
   );
 }

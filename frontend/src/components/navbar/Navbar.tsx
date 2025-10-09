@@ -245,23 +245,29 @@ function Navbar() {
                   <Link to="/login" style={{ color: '#1769FA', textDecoration: 'none', fontWeight: 700 }}>Login</Link>
                 </MenuItem>
               ) : (
-                <>
-                  <MenuItem sx={{ cursor: 'default', '&:hover': { backgroundColor: 'transparent' } }}>
-                    <Typography textAlign="center" sx={{ fontFamily: 'Inter, sans-serif', color: '#1769FA', fontWeight: 700 }}>
-                      {user?.name || 'User'}
-                    </Typography>
-                  </MenuItem>
-                  <MenuItem sx={{ cursor: 'default', '&:hover': { backgroundColor: 'transparent' } }}>
-                    <Typography textAlign="center" sx={{ fontFamily: 'Inter, sans-serif', color: '#6B7280', fontWeight: 400, fontSize: '0.9rem' }}>
-                      {role === 'admin' ? 'Administrator' : 'Customer'}
-                    </Typography>
-                  </MenuItem>
-                  <MenuItem onClick={handleLogout}>
-                    <Typography textAlign="center" sx={{ fontFamily: 'Inter, sans-serif', color: '#dc2626', fontWeight: 600 }}>
-                      Logout
-                    </Typography>
-                  </MenuItem>
-                </>
+                [
+                  (
+                    <MenuItem key="user-name" sx={{ cursor: 'default', '&:hover': { backgroundColor: 'transparent' } }}>
+                      <Typography textAlign="center" sx={{ fontFamily: 'Inter, sans-serif', color: '#1769FA', fontWeight: 700 }}>
+                        {user?.name || 'User'}
+                      </Typography>
+                    </MenuItem>
+                  ),
+                  (
+                    <MenuItem key="user-role" sx={{ cursor: 'default', '&:hover': { backgroundColor: 'transparent' } }}>
+                      <Typography textAlign="center" sx={{ fontFamily: 'Inter, sans-serif', color: '#6B7280', fontWeight: 400, fontSize: '0.9rem' }}>
+                        {role === 'admin' ? 'Administrator' : 'Customer'}
+                      </Typography>
+                    </MenuItem>
+                  ),
+                  (
+                    <MenuItem key="logout" onClick={handleLogout}>
+                      <Typography textAlign="center" sx={{ fontFamily: 'Inter, sans-serif', color: '#dc2626', fontWeight: 600 }}>
+                        Logout
+                      </Typography>
+                    </MenuItem>
+                  )
+                ]
               )}
             </Menu>
           </Box>
