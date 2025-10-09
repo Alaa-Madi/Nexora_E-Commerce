@@ -1,12 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Header from '../components/navbar/Header';
-import Footer from '../components/Footer';
 
 export default function Unauthorized() {
   return (
     <>
-      <Header />
       <main style={{ 
         padding: '4rem 2rem', 
         textAlign: 'center', 
@@ -84,7 +81,6 @@ export default function Unauthorized() {
           </div>
         </div>
       </main>
-      <Footer />
     </>
   );
 }
